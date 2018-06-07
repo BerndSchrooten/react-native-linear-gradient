@@ -1,13 +1,19 @@
-// @flow
+/**
+ * @providesModule LinearGradient
+ * @flow
+ */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { processColor, requireNativeComponent, PointPropType, StyleSheet, View, ViewPropTypes } from 'react-native';
+import { processColor, PointPropType, StyleSheet, View, ViewPropTypes } from 'react-native';
+import type { ViewProps } from 'react-native/Libraries/Components/View/ViewPropTypes';
 const deprecatedPropType = require('react-native/Libraries/Utilities/deprecatedPropType.js');
+
+import NativeLinearGradient from './nativeLinearGradient';
 
 const convertPoint = (name, point) => {
   if (Array.isArray(point)) {
     console.warn(
-      `LinearGradient '${name}' property shoule be an object with fields 'x' and 'y', ` +
+      `LinearGradient '${name}' property should be an object with fields 'x' and 'y', ` +
       'Array type is deprecated.'
     );
   }
@@ -18,22 +24,22 @@ const convertPoint = (name, point) => {
 };
 
 type PropsType = {
-  start?: Array<number> | {x: number, y: number};
-  end?: Array<number> | {x: number, y: number};
+  startPoint?: Array<number> | {x: number, y: number};
+  endPoint?: Array<number> | {x: number, y: number};
   colors: Array<string>;
   locations?: Array<number>;
-} & typeof(View);
+} & ViewProps;
 
 export default class LinearGradient extends Component {
   static propTypes = {
-    start: PropTypes.oneOfType([
+    startPoint: PropTypes.oneOfType([
       PointPropType,
       deprecatedPropType(
         PropTypes.arrayOf(PropTypes.number),
         'Use point object with {x, y} instead.'
       )
     ]),
-    end: PropTypes.oneOfType([
+    endPoint: PropTypes.oneOfType([
       PointPropType,
       deprecatedPropType(
         PropTypes.arrayOf(PropTypes.number),
@@ -55,9 +61,9 @@ export default class LinearGradient extends Component {
     const {
       children,
       colors,
-      end,
+      endPoint,
       locations,
-      start,
+      startPoint,
       style,
       ...otherProps
     } = this.props;
@@ -89,8 +95,8 @@ export default class LinearGradient extends Component {
         <NativeLinearGradient
           style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0}}
           colors={colors.map(processColor)}
-          start={convertPoint('start', start)}
-          end={convertPoint('end', end)}
+          startPoint={convertPoint('startPoint', startPoint)}
+          endPoint={convertPoint('endPoint', endPoint)}
           locations={locations ? locations.slice(0, colors.length) : null}
           borderRadii={borderRadiiPerCorner}
         />
@@ -99,5 +105,3 @@ export default class LinearGradient extends Component {
     );
   }
 }
-
-const NativeLinearGradient = requireNativeComponent('BVLinearGradient', null);
